@@ -6,51 +6,35 @@ import logging as log
 import datetime
 import time as tlib
 
-#OPTIMAL SCENARIO
+# GLOBAL OPTIMUM
 # Had12
 # 12
 # 1652(OPT)(3, 10, 11, 2, 12, 5, 6, 7, 8, 1, 4, 9)
-
-# Had14
-# 14
-# 2724(OPT)(8, 13, 10, 5, 12, 11, 2, 14, 3, 6, 7, 1, 9, 4)
-#
-# Had16
-# 16
-# 3720(OPT)(9, 4, 16, 1, 7, 8, 6, 14, 15, 11, 12, 10, 5, 3, 2, 13)
-#
-# Had18
-# 18
-# 5358(OPT)(8, 15, 16, 6, 7, 18, 14, 11, 1, 10, 12, 5, 3, 13, 2, 17, 9, 4)
-#
 # Had20
 # 20
 # 6922(OPT)(8, 15, 16, 14, 19, 6, 7, 17, 1, 12, 10, 11, 5, 20, 2, 3, 4, 9, 18, 13)
 
 
-#########PROPERTIES##############
-
-ITERATIONS = 1                      #LICZBA ITERACJI
-POP_SIZE = 10                       #ROZMIAR POPULACJI
-GEN = 50                            #LICZBA POKOLEN
-PX = 0.7                            #PRAWDOPODOBIENSTWO KRZYŻOWANIA
-PM = 0.6                            #PRAWDOPODOIEŃSTWO MUTACJI
-TOUR = 5                            #ROZMIAR TURNIEJU
-SAVE_STRONGEST = True           #0 FALSE #1 TRUE
-TEST_TWO_SAVE_STRONGEST = True     # TEST TWO VARIATIONS OF SAVE_STORNGEST
-SELECTION_METHOD = 1             # 0: ROULETTE 1:TOURNAMENT
-METHODS_TO_TEST = 1               # IF different than 1 SELECTION METHOD should be 0
-DATAFILEPATH = 'input/had12.dat'    #PATH TO FILE WITH INITIALISE DATA
+# CONFIG
+ITERATIONS = 1
+POP_SIZE = 100
+GEN = 50
+PX = 0.7
+PM = 0.6
+TOUR = 5
+SAVE_STRONGEST = False
+TEST_TWO_SAVE_STRONGEST = False     # TEST TWO VARIATIONS OF SAVE_STORNGEST
+SELECTION_METHOD = 0                # 0: ROULETTE 1:TOURNAMENT
+METHODS_TO_TEST = 1                 # when (!=1) SelectionMethod -> 0
+DATAFILEPATH = 'input/had12.dat'
+GLOB_MIN = 1652
 MUTATION_REPEAT = 2                 #REPEATS OF MUTATION ACTION IF MUTATE
-########END OF PROPERTIES###########
 
-
-#load data from file
-input_array = np.loadtxt(DATAFILEPATH, skiprows=1)       #load input (two arrays)
-dimension = int(open(DATAFILEPATH, 'r').readline())      #read Dimension writed in first row
-flow_matrix = input_array[:dimension, :]                 #spit array - first array is FLOW MATRIX
+# Parse input file
+input_array = np.loadtxt(DATAFILEPATH, skiprows=1)       #load input (2 arrays)
+dimension = int(open(DATAFILEPATH, 'r').readline())      #read dimension from the first row
+flow_matrix = input_array[:dimension, :]                 #split array - first array is FLOW MATRIX
 distance_matrix = input_array[dimension:, ]              #split array - second array is DISTANCE_MATRIX
-
 COMBINATIONS = list(itertools.combinations(range(dimension), 2))
 
 def getInitialiseInfo():
@@ -59,7 +43,6 @@ def getInitialiseInfo():
     print(distance_matrix)
     print("Flowmatrix:")
     print(flow_matrix)
-
 
 def generateIndividual():
     assigments = np.arange(0, dimension)
@@ -74,14 +57,11 @@ def getDistance(assigments, positions):
         print("error")
     return a
 
-
 def getCost(assigments, positions):
     return 2*getDistance(assigments, positions)*getFlow(positions)
 
-
 def getFlow(positions):
     return flow_matrix[positions[0]][positions[1]]
-
 
 def costFunction(assigments, combinations):
     cost = 0
@@ -89,20 +69,17 @@ def costFunction(assigments, combinations):
         cost += getCost(assigments, pair)
     return cost
 
-
 def initialise(populationSize):
     population = np.zeros((populationSize, dimension))
     for i in range(0, populationSize):
         population[i] = generateIndividual()
     return population
 
-
 def getCostsVector(population):
     costVector = np.zeros(population.shape[0])
     for i in range(0, population.shape[0]):
         costVector[i] = costFunction(population[i], COMBINATIONS)
     return costVector
-
 
 def rouletteMethod(population, costVector):
     #costVector = (costVector-min(costVector)+1)*1.5             #SHOULDNT BE DONE LIKE THIS
@@ -117,7 +94,6 @@ def rouletteMethod(population, costVector):
         newPopulation[i] = population[parents[i]]
     return newPopulation
 
-
 def pickOneRoulette(probabilityVector):
     pick = random.uniform(0, 1)
     sum = 0
@@ -126,7 +102,6 @@ def pickOneRoulette(probabilityVector):
         if(sum >= pick):
             return i
     return probabilityVector.shape[0]-1
-
 
 def tournamentMethod(population, costVector):
     parents = np.zeros(population.shape[0], dtype=int)
@@ -138,7 +113,6 @@ def tournamentMethod(population, costVector):
 
     return newPopulation
 
-
 def pickOneTournament(costVector):
     tournamentTeam = np.zeros(TOUR, dtype=int)
 
@@ -146,7 +120,6 @@ def pickOneTournament(costVector):
         tournamentTeam[i] = getRandomInvidivual()
 
     return costVector.tolist().index(min(costVector[tournamentTeam]))
-
 
 def selection(population):
     costVector = getCostsVector(population)
@@ -161,15 +134,12 @@ def selection(population):
         next_population[worstIndividualIndex] = bestIndividual
     return next_population
 
-
 def getRandomInvidivual():
     return random.randint(0, POP_SIZE-1)
-
 
 def allUnique(x):
      seen = set()
      return not any(i in seen or seen.add(i) for i in x)
-
 
 def repair(individual):
     if allUnique(individual):
@@ -189,14 +159,12 @@ def repair(individual):
             continue
     return np.array(list)
 
-
 def crossoverDiscrete(firstI, secondI):
     for i in range(0, firstI.shape[0]):
         if(random.uniform(0,1) <0.5):
             firstI[i] = secondI[i]
     firstI = repair(firstI)
     return firstI
-
 
 def crossover(population):
     bestIndividualIndex = -1
@@ -209,14 +177,12 @@ def crossover(population):
             population[i] = crossoverDiscrete(population[i], population[j])
     return population
 
-
 def mutate(individual):
     for k in range(0, MUTATION_REPEAT):
         i = random.randint(0, individual.shape[0] - 1)
         j = random.randint(0, individual.shape[0] - 1)
         individual[i], individual[j] = individual[j], individual[i]
     return individual
-
 
 def mutation(population):
     bestIndividualIndex = -1
@@ -227,7 +193,6 @@ def mutation(population):
         if (random.uniform(0, 1) < PM and i != bestIndividualIndex):
             mutate(population[i])
     return population
-
 
 def getBestIndividual(population):
     costVector = getCostsVector(population)
@@ -240,14 +205,13 @@ def preparePlot(field, minOutput, maxOutput, avgOutput, globalMinOutput):
     plt.plot(field, maxOutput)
     plt.plot(field, avgOutput)
     plt.plot(field, globalMinOutput)
-    plt.suptitle('COST: {}, \n Params: PX: {}, PM: {} GEN: {}'.format("{} - global min 1652".format(min(minOutput)), PX, PM, GEN))
-    plt.legend(("min", "max", "avg", "global min"))
+    plt.suptitle('Found minimum: {}, \n Parameters: Px: {}, Pm: {} #gen: {}'.format("{} - Global minimum {}".format(min(minOutput), GLOB_MIN), PX, PM, GEN))
+    plt.legend(("best", "worst", "average", "best so far"))
     plt.ylabel("Cost")
     if SELECTION_METHOD == 0:
-        plt.xlabel("ITERATIONS \n METHOD: ROULETTE SAVE_STRONEGEST: {}".format(SAVE_STRONGEST))
+        plt.xlabel("Generation \n\n Roulette, Save strongest: {}".format(SAVE_STRONGEST))
     else:
-        plt.xlabel("ITERATIONS \n METHOD: TOURNAMENT TOUR:{} SAVE_STRONEGEST: {}".format(TOUR, SAVE_STRONGEST))
-
+        plt.xlabel("Generation \n\n Tournament of size:{}, Save strongest: {}".format(TOUR, SAVE_STRONGEST))
 
 def geneticAlgorithm():
     starttime = tlib.time()
