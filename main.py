@@ -14,20 +14,27 @@ import time as tlib
 # 20
 # 6922(OPT)(8, 15, 16, 14, 19, 6, 7, 17, 1, 12, 10, 11, 5, 20, 2, 3, 4, 9, 18, 13)
 
+LOG_MIN_VALS = []
+LOG_TIMES = []
 
 # CONFIG
-ITERATIONS = 1
+ITERATIONS = 5
+GEN = 300
 POP_SIZE = 100
-GEN = 50
-PX = 0.7
+PX = 0.6
 PM = 0.6
-TOUR = 5
+TOUR = 2
 SAVE_STRONGEST = False
 TEST_TWO_SAVE_STRONGEST = False     # TEST TWO VARIATIONS OF SAVE_STORNGEST
 SELECTION_METHOD = 0                # 0: ROULETTE 1:TOURNAMENT
 METHODS_TO_TEST = 1                 # when (!=1) SelectionMethod -> 0
+
 DATAFILEPATH = 'input/had12.dat'
 GLOB_MIN = 1652
+
+# DATAFILEPATH = 'input/had20.dat'
+# GLOB_MIN = 6922
+
 MUTATION_REPEAT = 2                 #REPEATS OF MUTATION ACTION IF MUTATE
 
 # Parse input file
@@ -205,7 +212,7 @@ def preparePlot(field, minOutput, maxOutput, avgOutput, globalMinOutput):
     plt.plot(field, maxOutput)
     plt.plot(field, avgOutput)
     plt.plot(field, globalMinOutput)
-    plt.suptitle('Found minimum: {}, \n Parameters: Px: {}, Pm: {} #gen: {}'.format("{} - Global minimum {}".format(min(minOutput), GLOB_MIN), PX, PM, GEN))
+    plt.suptitle('Found minimum: {}, \n Parameters: Px: {}, Pm: {}, gen: {}, pop: {}'.format("{} - Global minimum {}".format(min(minOutput), GLOB_MIN), PX, PM, GEN, POP_SIZE))
     plt.legend(("best", "worst", "average", "best so far"))
     plt.ylabel("Cost")
     if SELECTION_METHOD == 0:
@@ -237,10 +244,12 @@ def geneticAlgorithm():
 
     endTime = tlib.time()
     preparePlot(field, minOutput, maxOutput, avgOutput, globalMinOutput)
-    log.info("min valuse {}".format(min(minOutput)))
-    print("min value {} - global min 1652".format(min(minOutput)))
+    log.info("min value {}".format(min(minOutput)))
+    print("min value {}".format(min(minOutput)))
     print("Evaluation time: {} s".format(endTime-starttime))
     print("SELECTION METHOD: {}".format(SELECTION_METHOD))
+    LOG_MIN_VALS.append(min(minOutput))
+    LOG_TIMES.append(endTime-starttime)
     return getBestIndividual(pop)
 
 def randomSearch(time):
@@ -320,5 +329,5 @@ log.info(min(results))
 log.info("OF ID:")
 log.info((results.index(min(results))))
 
-
-
+print("\n\navg min: " + str((sum([float(elt) for elt in LOG_MIN_VALS])/float(len(LOG_MIN_VALS)))))
+print("avg time: " + str((sum([float(elt) for elt in LOG_TIMES])/float(len(LOG_TIMES)))))
