@@ -19,21 +19,21 @@ LOG_TIMES = []
 
 # CONFIG
 ITERATIONS = 5
-GEN = 300
-POP_SIZE = 100
+GEN = 200
+POP_SIZE = 200
+PM = 0.8
 PX = 0.6
-PM = 0.6
-TOUR = 2
+TOUR = 10
 SAVE_STRONGEST = False
 TEST_TWO_SAVE_STRONGEST = False     # TEST TWO VARIATIONS OF SAVE_STORNGEST
-SELECTION_METHOD = 0                # 0: ROULETTE 1:TOURNAMENT
+SELECTION_METHOD =    0            # 0: ROULETTE 1:TOURNAMENT
 METHODS_TO_TEST = 1                 # when (!=1) SelectionMethod -> 0
 
-DATAFILEPATH = 'input/had12.dat'
-GLOB_MIN = 1652
+# DATAFILEPATH = 'input/had12.dat'
+# GLOB_MIN = 1652
 
-# DATAFILEPATH = 'input/had20.dat'
-# GLOB_MIN = 6922
+DATAFILEPATH = 'input/had20.dat'
+GLOB_MIN = 6922
 
 MUTATION_REPEAT = 2                 #REPEATS OF MUTATION ACTION IF MUTATE
 
@@ -288,46 +288,48 @@ def logInfo():
 
 #def greedySearch():
 
-results=[]
+# results=[]
 
-for i in range(0, METHODS_TO_TEST):
-    if METHODS_TO_TEST > 1:
-        SELECTION_METHOD = i % METHODS_TO_TEST
+# for i in range(0, METHODS_TO_TEST):
+#     if METHODS_TO_TEST > 1:
+#         SELECTION_METHOD = i % METHODS_TO_TEST
 
-    if TEST_TWO_SAVE_STRONGEST == True:
-        if i == 2*METHODS_TO_TEST-1:
-            SAVE_STRONGEST = 0
+#     if TEST_TWO_SAVE_STRONGEST == True:
+#         if i == 2*METHODS_TO_TEST-1:
+#             SAVE_STRONGEST = 0
 
-    logInfo()
-    output = np.zeros((ITERATIONS, dimension), dtype=int,)
+#     logInfo()
+#     output = np.zeros((ITERATIONS, dimension), dtype=int,)
 
-    for j in range(0, ITERATIONS):
-        print("Evaluate: {}".format(j))
-        log.info(("#Evaluate: {}".format(j)))
-        wynik = geneticAlgorithm()
-        output[j] = wynik
-        #print("Min cost of iteration:", costFunction(output[j], COMBINATIONS))
-        log.info(getDate())
-        log.info(("Min cost of iteration: {}".format(costFunction(output[j], COMBINATIONS))))
-        log.info(("Min of all evaluations: {}".format(min(getCostsVector(output[0:j+1,:])))))
-        #print("Min of all evaluations:", min(getCostsVector(output[0:j+1,:])))
+#     for j in range(0, ITERATIONS):
+#         print("Evaluate: {}".format(j))
+#         log.info(("#Evaluate: {}".format(j)))
+#         wynik = geneticAlgorithm()
+#         output[j] = wynik
+#         #print("Min cost of iteration:", costFunction(output[j], COMBINATIONS))
+#         log.info(getDate())
+#         log.info(("Min cost of iteration: {}".format(costFunction(output[j], COMBINATIONS))))
+#         log.info(("Min of all evaluations: {}".format(min(getCostsVector(output[0:j+1,:])))))
+#         #print("Min of all evaluations:", min(getCostsVector(output[0:j+1,:])))
 
-    costVector = getCostsVector(output)
-    plt.show()
-    log.info("cost Vector")
-    log.info(costVector)
-    log.info("Minimum cost")
-    log.info(min(costVector))
-    log.info("of Individual:")
-    log.info(output[costVector.tolist().index(min(costVector))])
-    log.info("----------------------------")
-    results.append(min(costVector))
-log.info("Cost Vector of outputs:")
-log.info(''.join(str(e)+', ' for e in results))
-log.info("BEST OF ALL")
-log.info(min(results))
-log.info("OF ID:")
-log.info((results.index(min(results))))
+#     costVector = getCostsVector(output)
+#     plt.show()
+#     log.info("cost Vector")
+#     log.info(costVector)
+#     log.info("Minimum cost")
+#     log.info(min(costVector))
+#     log.info("of Individual:")
+#     log.info(output[costVector.tolist().index(min(costVector))])
+#     log.info("----------------------------")
+#     results.append(min(costVector))
+# log.info("Cost Vector of outputs:")
+# log.info(''.join(str(e)+', ' for e in results))
+# log.info("BEST OF ALL")
+# log.info(min(results))
+# log.info("OF ID:")
+# log.info((results.index(min(results))))
 
-print("\n\navg min: " + str((sum([float(elt) for elt in LOG_MIN_VALS])/float(len(LOG_MIN_VALS)))))
-print("avg time: " + str((sum([float(elt) for elt in LOG_TIMES])/float(len(LOG_TIMES)))))
+# print("\n\navg min: " + str((sum([float(elt) for elt in LOG_MIN_VALS])/float(len(LOG_MIN_VALS)))))
+# print("avg time: " + str((sum([float(elt) for elt in LOG_TIMES])/float(len(LOG_TIMES)))))
+
+randomSearch(130)
